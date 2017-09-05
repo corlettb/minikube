@@ -19,11 +19,12 @@ package config
 import (
 	"bufio"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // AskForYesNoConfirmation asks the user for confirmation. A user must type in "yes" or "no" and
@@ -56,6 +57,16 @@ func AskForYesNoConfirmation(s string, posResponses, negResponses []string) bool
 
 // AskForStaticValue asks for a single value to enter
 func AskForStaticValue(s string) string {
+	return AskForEnforcedStaticValue(s, true)
+}
+
+// AskForOptionalStaticValue asks for an optional single value to enter
+func AskForOptionalStaticValue(s string) string {
+	return AskForEnforcedStaticValue(s, false)
+}
+
+// AskForEnforcedStaticValue asks for a single value to enter and optionally enforces it
+func AskForEnforcedStaticValue(s string, enforceEmpty bool) string {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
@@ -69,7 +80,7 @@ func AskForStaticValue(s string) string {
 		response = strings.TrimSpace(response)
 
 		// Can't have zero length
-		if len(response) == 0 {
+		if enforceEmpty && len(response) == 0 {
 			fmt.Println("--Error, please enter a value:")
 			return AskForStaticValue(s)
 		}
